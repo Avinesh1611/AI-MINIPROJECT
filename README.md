@@ -21,60 +21,82 @@ Step 14 : Launch the Gradio interface for user interaction.<br>
 Step 15 : Stop the program.<br>
 
 ## Program:
-```
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 
-
-import os
-for dirname, _, filenames in os.walk('/kaggle/input'):
-    for filename in filenames:
-        print(os.path.join(dirname, filename))
-
-
-data = pd.read_csv('/content/sample_data/student_exam_data.csv')
-data.head()
-
-data.dtypes
-
-data.shape
-
-data.columns
-
-X = data.drop(['Pass/Fail'], axis=1)
-y = data['Pass/Fail']
+import pandas as pd
 
 from sklearn.model_selection import train_test_split
 
+from sklearn.preprocessing import LabelEncoder
+
+from sklearn.tree import DecisionTreeClassifier
+
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+import seaborn as sns
+
+import matplotlib.pyplot as plt
+
+# Load the dataset
+
+data = pd.read_csv('/content/student_exam_data.csv - Sheet1.csv')
+
+# Convert 'Pass/Fail' to numeric
+
+label_encoder = LabelEncoder()
+
+data['Pass/Fail'] = label_encoder.fit_transform(data['Pass/Fail'])  # Pass → 1, Fail → 0
+
+X = data.drop('Pass/Fail', axis=1)
+
+y = data['Pass/Fail']
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.tree import DecisionTreeClassifier
 
-scale = MinMaxScaler()
+model = DecisionTreeClassifier(criterion='entropy', random_state=42)
 
-X_train_scale = scale.fit_transform(X_train)
-X_test_scale = scale.transform(X_test)
+model.fit(X_train, y_train)
 
-from sklearn.ensemble import RandomForestClassifier
-model = RandomForestClassifier()
-
-from sklearn.metrics import accuracy_score
-
-model.fit(X_train_scale, y_train)
-
-y_pred = model.predict(X_test_scale)
+y_pred = model.predict(X_test)
 
 print("Accuracy:", accuracy_score(y_test, y_pred))
-```
+
+print("\nClassification Report:")
+
+print(classification_report(y_test, y_pred, target_names=['Fail', 'Pass']))
+
+cm = confusion_matrix(y_test, y_pred)
+
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Fail', 'Pass'], yticklabels=['Fail', 'Pass'])
+
+plt.xlabel('Predicted')
+
+plt.ylabel('Actual')
+
+plt.title('Confusion Matrix')
+
+plt.show()
+
+from sklearn.tree import plot_tree
+
+plt.figure(figsize=(16, 8))
+
+plot_tree(model, feature_names=X.columns, class_names=['Fail', 'Pass'], filled=True)
+
+plt.title("Decision Tree Visualization")
+
+plt.show()
 
 ### Output:
 
-![ai-mini1](https://github.com/user-attachments/assets/16d96d93-4601-44d9-869a-db087fb9acd3)
-![ai-mini2](https://github.com/user-attachments/assets/66a743a2-5e4c-4b1d-a6ee-c7145900df07)
-![ai-mini3](https://github.com/user-attachments/assets/2faf6265-919b-4196-aaa0-f2aa2cbabd62)
+![Screenshot (60)](https://github.com/user-attachments/assets/c86d7c7a-7a51-46ec-9270-b6b0dc96423d)
 
+![Screenshot (61)](https://github.com/user-attachments/assets/02ec2a48-2790-42cf-9131-940fe4590db3)
 
+![download](https://github.com/user-attachments/assets/54892e47-551f-4dd6-9604-16fc36271e18)
 
+![download (1)2](https://github.com/user-attachments/assets/c18d9046-c347-43e2-813a-df4fcc98a9f4)
 
 ### Result:
 Thus the system was trained successfully and the prediction was carried out.
